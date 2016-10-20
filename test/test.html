@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="testApp">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Test Activex</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.angularjs.org/1.4.0/angular.js"></script>
+    <script src="../index.js"></script>
+    <script type="text/javascript">
+        angular.module("testApp", ["ngIme"]).controller("testController", function() {});
+    </script>
+</head>
+<body>
+<object id="IMEManager" onerror="window.objectLoadFailure = true" classid="clsid:7A5D58C7-1C27-4DFF-8C8F-F5876FF94C64"></object>
+
+<script type="text/javascript" for="window" event="onload">
+    IMEManager.GetCurrentInputConversion();
+</script>
+
+<div id="mybox" ng-controller="testDataController">
+    半角カナ:<input type="text" ime-conversion="KatakanaHalf"/><br>
+    ひらがな:<input type="text" ime-conversion="Hiragana"/><br>
+    英数:<input type="text" ime-conversion="Alpha"/><br>
+    全角英数:<input type="text" ime-conversion="AlphaFull"/><br>
+    カタカナ:<input type="text" ime-conversion="Katakana"/><br>
+</div>
+
+</body>
+</html>
