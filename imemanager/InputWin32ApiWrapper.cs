@@ -76,10 +76,10 @@ namespace ActiveXObject
             {
                 var lngStatusIMEConversion = 0;
                 var lngStatusSentance = 0;
-                if (!ImmGetOpenStatus(ctx))
+                /*if (!ImmGetOpenStatus(ctx))
                 {
                     ImmSetOpenStatus(ctx, true);
-                }
+                }*/
                 var lngWin32apiResultCode = ImmGetConversionStatus(ctx, ref lngStatusIMEConversion, ref lngStatusSentance);
                 if (lngWin32apiResultCode)
                 {
@@ -91,11 +91,6 @@ namespace ActiveXObject
 
         public static int RestoreInputConversion(int ime)
         {
-            //var ime = GetConversionByImeModeString(imeMode);
-            /*if (ime == 25)
-            {
-                ime = GetConversionByImeModeString("Alpha");
-            }*/
             var result = GetAllInputContext(0);
             if (result == null)
             {
@@ -114,7 +109,7 @@ namespace ActiveXObject
                 {
                     if (lngStatusIMEConversion == lastConversion)
                     {
-                        lngWin32apiResultCode = ImmSetConversionStatus(ctx, ime, IME_SMODE_NONE);
+                        lngWin32apiResultCode = ImmSetConversionStatus(ctx, ime, GetSentenceByImeMode(ime));
                         lngWin32apiResultCode = ImmGetConversionStatus(ctx, ref lngStatusIMEConversion, ref lngStatusSentance);
                         return lngStatusIMEConversion;
                     }
@@ -137,14 +132,25 @@ namespace ActiveXObject
                     ImmSetOpenStatus(ctx, true);
                 }
                 var lngStatusIMEConversion = GetConversionByImeModeString(imeMode);
-                var lngWin32apiResultCode = ImmSetConversionStatus(ctx, lngStatusIMEConversion, IME_SMODE_NONE);
-                var lngStatusSentance = 0;
+                var lngStatusImeSentence = GetSentenceByImeModeString(imeMode);
+                var lngWin32apiResultCode = ImmSetConversionStatus(ctx, lngStatusIMEConversion, lngStatusImeSentence);
 
-                lngWin32apiResultCode = ImmGetConversionStatus(ctx, ref lngStatusIMEConversion, ref lngStatusSentance);
+                lngWin32apiResultCode = ImmGetConversionStatus(ctx, ref lngStatusIMEConversion, ref lngStatusImeSentence);
                 lastConversion = lngStatusIMEConversion;
                 return lngStatusIMEConversion;
             }
             return 0;
+        }
+
+        public static int GetSentenceByImeMode(int imeMode)
+        {
+            switch(imeMode)
+            {
+                case 25:
+                   return IME_SMODE_PHRASEPREDICT;
+                default:
+                    return IME_SMODE_NONE;
+            }
         }
 
         public static int GetConversionByImeModeString(string imeMode)
@@ -167,6 +173,31 @@ namespace ActiveXObject
                     return IME_CMODE_NATIVE | IME_CMODE_KATAKANA;
                 default:
                     return DEFAULT_IME_MODE;
+            }
+        }
+
+
+        public static int GetSentenceByImeModeString(string imeMode)
+        {
+            ImeMode mode;
+            if (!Enum.TryParse(imeMode, out mode))
+            {
+                return 0;
+            }
+            switch (mode)
+            {
+                case ImeMode.Alpha:
+                    return IME_SMODE_NONE;
+                case ImeMode.AlphaFull: // 全角英数字
+                    return IME_SMODE_NONE;
+                case ImeMode.Hiragana: // 全角ひらがな
+                    return IME_SMODE_PHRASEPREDICT;
+                case ImeMode.Katakana: // 全角カナ
+                    return IME_SMODE_NONE;
+                case ImeMode.KatakanaHalf: // 半角カナ
+                    return IME_SMODE_NONE;
+                default:
+                    return IME_SMODE_PHRASEPREDICT;
             }
         }
 
